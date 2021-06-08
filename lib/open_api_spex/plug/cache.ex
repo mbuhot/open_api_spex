@@ -50,6 +50,6 @@ defmodule OpenApiSpex.Plug.Cache do
   @spec refresh() :: :ok
   def refresh do
     adapter = adapter()
-    adapter.erase()
+    adapter.erase(adapter)
   end
 end
