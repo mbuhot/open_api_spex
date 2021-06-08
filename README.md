@@ -307,6 +307,8 @@ serve a SwaggerUI interface. The `path:` plug option must be supplied to give th
 
 All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than vendoring into this package.
 
+
+
 ```elixir
 scope "/" do
   pipe_through :browser # Use the default browser stack
@@ -321,6 +323,27 @@ scope "/api" do
   resources "/users", MyAppWeb.UserController, only: [:create, :index, :show]
   get "/openapi", OpenApiSpex.Plug.RenderSpec, []
 end
+```
+
+## Assets can be installed into the local application
+
+```shell
+mix openapi.spec.install 'install_path'
+```
+```elixir
+  scope "/" do
+    pipe_through :browser # Use the default browser stack
+
+    get "/", MyAppWeb.PageController, :index
+    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI.Local, path: "/api/openapi"
+  end
+
+  scope "/api" do
+    pipe_through :api
+
+    resources "/users", MyAppWeb.UserController, only: [:create, :index, :show]
+    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+  end
 ```
 
 ## Importing an existing schema file
