@@ -19,11 +19,18 @@ defmodule OpenApiSpex.Paths do
 
   @doc """
   Create a Paths map from the routes in the given router module.
+
+  Optionally allows filtering on `Phoenix.Router.Route` structure attribute values:
+
+  ```
+    paths: Paths.from_router(router, host: "somehost.")
+  ```
   """
-  @spec from_router(module) :: t
-  def from_router(router) do
+  @spec from_router(module, keyword) :: t
+  def from_router(router, options \\ []) do
     paths =
       router.__routes__()
+      |> Enum.filter(&filter_route(&1, options))
       |> Enum.group_by(fn route -> route.path end)
       |> Enum.map(fn {k, v} -> {open_api_path(k), PathItem.from_routes(v)} end)
       |> Enum.filter(fn {_k, v} -> !is_nil(v) end)
@@ -37,6 +44,11 @@ defmodule OpenApiSpex.Paths do
         %{path_item | verb => operation}
       end)
     end)
+  end
+
+  @doc false
+  def filter_route(route, options) do
+    Enum.all?(options, fn {k, v} -> get_in(route, [Access.key!(k)]) == v end)
   end
 
   @spec open_api_path(String.t()) :: String.t()
